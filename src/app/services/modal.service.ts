@@ -16,6 +16,9 @@ export class ModalService {
   public register(id: string, element: HTMLDialogElement): void {
     this.modals.set([...this.modals(), {id, element}])
   }
+  public unregister(id: string): void {
+    this.modals.set(this.modals().filter(i => i.id != id))
+  }
   public toggle(id: string): void {
     const modal = this.modals().find(i => i.id == id)
     if(!modal) return
