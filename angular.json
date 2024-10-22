@@ -4,6 +4,12 @@
   "newProjectRoot": "projects",
   "projects": {
     "clips": {
+      "i18n": {
+        "sourceLocale": {
+          "code": "ru",
+          "baseHref": "/ru/"
+        }
+      },
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -37,6 +43,9 @@
             "scripts": []
           },
           "configurations": {
+            "ru": {
+              "localize": ["ru"]
+            },
             "production": {
               "budgets": [
                 {
@@ -63,6 +72,9 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
+            "ru": {
+              "browserTarget": "ang-basics:build:development,ru"
+            },
             "production": {
               "buildTarget": "clips:build:production"
             },
