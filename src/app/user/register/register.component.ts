@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angu
 import { AuthService } from '../../services/auth/auth.service';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { InputComponent } from '../../shared/input/input.component';
+import { EmailTaken, Match } from './validators';
 
 interface IRegisterForm  {
   age: FormControl<number>
@@ -26,18 +27,18 @@ export class RegisterComponent {
   public alertColor = signal('blue')
   public inSubmission = signal(false)
   public authService = inject(AuthService)
-
+  public emailTaken = inject(EmailTaken)
 
 
   public fb = inject(FormBuilder)
   public form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.email], [this.emailTaken.validate]],
     age: [18, [Validators.required, Validators.min(18), Validators.max(120)]],
     password: ['', [Validators.required, Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm)]],
     confirmPassword: ['', [Validators.required]],
     phoneNumber: ['', [Validators.required, Validators.minLength(14), Validators.maxLength(14)]],
-  })
+  }, {validators: [Match('password', 'confirmPassword')]})
 
   public async register() {
     this.showAlert.set(true)
