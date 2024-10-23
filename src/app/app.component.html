@@ -247,5 +247,8 @@
     </a>
   </div>
 </section>
-<app-auth-modal></app-auth-modal>
+@if(!(authService.authStateWithDelay$ | async)) {
+  <app-auth-modal></app-auth-modal>
+}
+
 

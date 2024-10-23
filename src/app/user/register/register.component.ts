@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AuthService } from '../../services/auth/auth.service';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { InputComponent } from '../../shared/input/input.component';
 
@@ -23,6 +24,10 @@ export class RegisterComponent {
   public showAlert = signal(false)
   public alertMsg = signal('Please wait! Your account is being created')
   public alertColor = signal('blue')
+  public inSubmission = signal(false)
+  public authService = inject(AuthService)
+
+
 
   public fb = inject(FormBuilder)
   public form = this.fb.nonNullable.group({
@@ -34,9 +39,22 @@ export class RegisterComponent {
     phoneNumber: ['', [Validators.required, Validators.minLength(14), Validators.maxLength(14)]],
   })
 
-  public register() {
+  public async register() {
     this.showAlert.set(true)
     this.alertMsg.set('Please wait! Your account is being created')
     this.alertColor.set('blue')
+    this.inSubmission.set(true)
+
+    try {
+      await this.authService.register(this.form.getRawValue())
+    } catch(e) {
+      this.alertMsg.set('An unexpected error occured! Please try again later.')
+      this.alertColor.set('red')
+      this.inSubmission.set(false)
+      console.error(e)
+      return
+    }
+    this.alertMsg.set('Success! Your account has been created.')
+    this.alertColor.set('green')
   }
 }

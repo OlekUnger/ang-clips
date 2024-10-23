@@ -1,12 +1,15 @@
-import { Component } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavComponent } from './core/nav/nav.component';
+import { AuthService } from './services/auth/auth.service';
 import { AuthModalComponent } from './user/auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
+    AsyncPipe,
     RouterOutlet,
     NavComponent,
     AuthModalComponent
@@ -16,4 +19,5 @@ import { AuthModalComponent } from './user/auth-modal/auth-modal.component';
 })
 export class AppComponent {
   title = 'clips';
+  public authService = inject(AuthService)
 }
