@@ -1,8 +1,11 @@
 import { NgClass, PercentPipe } from '@angular/common';
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { Auth } from '@angular/fire/auth';
+import { serverTimestamp, Timestamp } from '@angular/fire/firestore';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { fileExtension } from '../../core/utils/regexp';
+import { IClip } from '../../models/clip.model';
 import { ClipService } from '../../services/clip/clip.service';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { EventBlockerDirective } from '../../shared/directives/event-blocker.directive';
@@ -14,12 +17,11 @@ import { v4 as uuid } from 'uuid'
   selector: 'app-upload',
   standalone: true,
   imports: [
-    EventBlockerDirective,
     ReactiveFormsModule,
     NgClass,
     PercentPipe,
     InputComponent,
-    AlertComponent
+    AlertComponent,EventBlockerDirective,
   ],
   templateUrl: './upload.component.html',
   styleUrl: './upload.component.scss'
@@ -32,6 +34,7 @@ export class UploadComponent implements OnDestroy {
   #storage = inject(Storage)
   #auth = inject(Auth)
   #clipService = inject(ClipService)
+  #router = inject(Router)
   showAlert = signal(false)
   alertMsg = signal('Please wait! Your clip is being uploaded.')
   alertColor = signal('blue')
@@ -84,19 +87,24 @@ export class UploadComponent implements OnDestroy {
       },
       complete: async () => {
         const clipUrl = await getDownloadURL(clipRef)
-        const clip = {
+        const clip: IClip = {
           uid: this.#auth.currentUser?.uid as string,
           displayName: this.#auth.currentUser?.displayName as string,
           title: this.form.controls.title.value,
           fileName: `${clipFileName}.mp4`,
-          clipUrl
+          clipUrl,
+          timestamp: serverTimestamp() as Timestamp
         }
-        await this.#clipService.create(clip)
+        await this.#clipService.create(clip).then(res => {
+          this.alertColor.set('green')
+          this.alertMsg.set('Success! Your clip is now ready to share with the world.')
+          this.showPercentage.set(false)
+          this.inSubmission.set(false)
 
-        this.alertColor.set('green')
-        this.alertMsg.set('Success! Your clip is now ready to share with the world.')
-        this.showPercentage.set(false)
-        this.inSubmission.set(false)
+          setTimeout(() => {
+            this.#router.navigate(['clip', res.id])
+          }, 1000)
+        })
       }
     })
   }
