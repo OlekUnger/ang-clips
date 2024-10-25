@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { password } from '../../core/utils/regexp';
 import { AuthService } from '../../services/auth/auth.service';
 import { AlertComponent } from '../../shared/alert/alert.component';
 import { InputComponent } from '../../shared/input/input.component';
@@ -35,7 +36,7 @@ export class RegisterComponent {
     name: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email], [this.emailTaken.validate]],
     age: [18, [Validators.required, Validators.min(18), Validators.max(120)]],
-    password: ['', [Validators.required, Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm)]],
+    password: ['', [Validators.required, Validators.pattern(password)]],
     confirmPassword: ['', [Validators.required]],
     phoneNumber: ['', [Validators.required, Validators.minLength(14), Validators.maxLength(14)]],
   }, {validators: [Match('password', 'confirmPassword')]})
