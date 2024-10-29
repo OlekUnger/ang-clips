@@ -47,11 +47,15 @@ export class ClipService {
     return await updateDoc(clipRef, {title})
   }
   public async delete (clip: IClip) {
+    console.log(clip)
     const fileRef = ref(this.storage, `clips/${clip.fileName}`)
     await deleteObject(fileRef)
 
     const docRef = doc(this.#firestore, 'clips', clip.id as string)
     await deleteDoc(docRef)
+
+    const screenshotRef = ref(this.storage, `screenshots/${clip.screenshotFileName}`)
+    await deleteObject(screenshotRef)
   }
 
   // public get(): Observable<ClipModel[]> {

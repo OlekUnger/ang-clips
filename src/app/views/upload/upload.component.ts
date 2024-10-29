@@ -12,6 +12,8 @@ import { EventBlockerDirective } from '../../shared/directives/event-blocker.dir
 import { InputComponent } from '../../shared/input/input.component';
 import { Storage, ref, uploadBytesResumable, fromTask, getDownloadURL, UploadTask } from '@angular/fire/storage'
 import { v4 as uuid } from 'uuid'
+import {FfmpegService} from "../../services/ffmpeg/ffmpeg.service";
+import {combineLatestWith, forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-upload',
@@ -35,31 +37,43 @@ export class UploadComponent implements OnDestroy {
   #auth = inject(Auth)
   #clipService = inject(ClipService)
   #router = inject(Router)
+  ffmpegService = inject(FfmpegService)
   showAlert = signal(false)
   alertMsg = signal('Please wait! Your clip is being uploaded.')
   alertColor = signal('blue')
   inSubmission = signal(false)
   percentage = signal(0)
   showPercentage = signal(false)
+  screenshots = signal<string[]>([])
+  selectedScreenshot = signal('')
   clipTask?: UploadTask
+  screenshotTask?: UploadTask
 
   public form = this.fb.nonNullable.group({
     title: ['', [Validators.required, Validators.minLength(3)]],
   })
 
-  public storeFile($event:Event) {
+  constructor() {
+    this.ffmpegService.init()
+  }
+
+  public async storeFile($event:Event) {
+    if(this.ffmpegService.isRunning()) return
+
     this.isDragOver.set(false)
     this.file.set(($event as DragEvent).dataTransfer?.files.item(0) ?? null)
 
     if(this.file()?.type !== 'video/mp4') return
+
+    this.screenshots.set(await this.ffmpegService.getScreenShots(this.file()))
+    this.selectedScreenshot.set(this.screenshots()[0])
     this.form.controls.title.setValue(this.file()?.name.replace(fileExtension, '') ?? '')
     this.nextStep.set(true)
-
 
     // console.log(this.file())
   }
 
-  uploadFile() {
+  async uploadFile() {
     this.showAlert.set(true)
     this.alertColor.set('blue')
     this.alertMsg.set('Please wait! Your clip is being uploaded.')
@@ -71,12 +85,24 @@ export class UploadComponent implements OnDestroy {
     const clipRef = ref(this.#storage, clipPath)
     this.clipTask = uploadBytesResumable(clipRef, this.file() as File)
 
-    fromTask(this.clipTask).subscribe({
-      next: (res: any) => {
+    const screenshotBlob = await this.ffmpegService.blobFromUrl(this.selectedScreenshot())
+    const screenshotPath = `screenshots/${clipFileName}.png`
+    const screenshotRef = ref(this.#storage, screenshotPath)
+    this.screenshotTask = uploadBytesResumable(screenshotRef, screenshotBlob)
+
+    fromTask(this.clipTask).pipe(
+        combineLatestWith(fromTask(this.screenshotTask))
+    ).subscribe({
+      next: ([clipSnapshot, screenshotSnapshot]: any[]) => {
         this.form.disable()
-        const progress = res.bytesTransferred / res.totalBytes
-        this.percentage.set(progress)
+        const bytesUploaded = clipSnapshot.bytesTransferred + screenshotSnapshot.bytesTransferred
+        const totalBytes = clipSnapshot.totalBytes + screenshotSnapshot.totalBytes
+
+        this.percentage.set(bytesUploaded / totalBytes)
       },
+
+    })
+    forkJoin(fromTask(this.clipTask, this.screenshotTask)).subscribe({
       error: (error: any) => {
         this.form.enable()
         this.alertColor.set('red')
@@ -87,12 +113,16 @@ export class UploadComponent implements OnDestroy {
       },
       complete: async () => {
         const clipUrl = await getDownloadURL(clipRef)
+        const screenshotUrl = await getDownloadURL(screenshotRef)
+
         const clip: IClip = {
           uid: this.#auth.currentUser?.uid as string,
           displayName: this.#auth.currentUser?.displayName as string,
           title: this.form.controls.title.value,
           fileName: `${clipFileName}.mp4`,
           clipUrl,
+          screenshotUrl,
+          screenshotFileName: `${clipFileName}.png`,
           timestamp: serverTimestamp() as Timestamp
         }
         await this.#clipService.create(clip).then(res => {

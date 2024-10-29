@@ -7,6 +7,8 @@ export interface IClip {
   title: string
   fileName: string
   clipUrl: string
+  screenshotUrl?: string
+  screenshotFileName?: string
   timestamp: Timestamp
 }
 
@@ -17,6 +19,8 @@ export class ClipModel implements IClip {
   title!: string
   fileName!: string
   clipUrl!: string
+  screenshotUrl?: string
+  screenshotFileName?: string
   timestamp!: Timestamp
 
   constructor(data?: IClip) {
@@ -30,6 +34,8 @@ export class ClipModel implements IClip {
     this.title = data.title
     this.fileName = data.fileName
     this.clipUrl = data.clipUrl
+    this.screenshotUrl = data.screenshotUrl
+    this.screenshotFileName = data.screenshotFileName
     this.timestamp = data.timestamp
   }
 
@@ -41,6 +47,8 @@ export class ClipModel implements IClip {
       title: this.title,
       fileName: this.fileName,
       clipUrl: this.clipUrl,
+      screenshotUrl: this.screenshotUrl,
+      screenshotFileName: this.screenshotFileName,
       timestamp: this.timestamp
     }
   }
