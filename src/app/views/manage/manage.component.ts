@@ -41,13 +41,13 @@ export class ManageComponent implements OnInit {
      this.clips.set(await this.clipService.get())
   }
 
-  public openModal($event: Event, clip: ClipModel) {
+  public openModal($event: Event, clip: ClipModel): void {
     $event.preventDefault()
     this.activeClip.set(clip)
     this.modalService.toggle('editClip')
   }
 
-  public onUpdate(data: ClipModel) {
+  public onUpdate(data: ClipModel): void {
     const currentClips = this.clips()
     const ind = currentClips.findIndex(i => i.id == data.id)
     if(ind != -1) {
@@ -56,12 +56,18 @@ export class ManageComponent implements OnInit {
     }
   }
 
-  public deleteClip($event:Event, clip: IClip) {
+  public deleteClip($event:Event, clip: IClip): void {
     $event.preventDefault()
     this.clipService.delete(clip).then(res => {
       const currentClips = this.clips()
       this.clips.set(currentClips.filter(i => i.id !== clip.id))
     })
+  }
+
+  public async copyToClipboard($event: Event, id?: string) {
+    $event.preventDefault()
+    const url = `${location.origin}/clip/${id}`
+    await navigator.clipboard.writeText(url)
   }
 
 }

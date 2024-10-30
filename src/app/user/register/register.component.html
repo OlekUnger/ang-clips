@@ -1,37 +1,38 @@
-@if(showAlert()) {
-  <app-alert [color]="alertColor()">{{alertMsg()}}</app-alert>
+@if (showAlert()) {
+    <app-alert [color]="alertColor()">{{ alertMsg() }}</app-alert>
 }
 
 <form [formGroup]="form" (ngSubmit)="register()">
-  <div class="mb-3">
-    <label class="inline-block mb-2">Name</label>
-   <app-input [control]="form.controls.name" placeholder="Enter Name"></app-input>
-  </div>
-  <div class="mb-3">
-    <label class="inline-block mb-2">Email</label>
-    <app-input [control]="form.controls.email" placeholder="Enter Email" type="email"></app-input>
-  </div>
-  <div class="mb-3">
-    <label class="inline-block mb-2">Age</label>
-    <app-input [control]="form.controls.age" placeholder="Enter Age" type="number"></app-input>
-  </div>
-  <div class="mb-3">
-    <label class="inline-block mb-2">Password</label>
-    <app-input [control]="form.controls.password" placeholder="Password" type="password"></app-input>
-  </div>
-  <div class="mb-3">
-    <label class="inline-block mb-2">Confirm Password</label>
-    <app-input [control]="form.controls.confirmPassword" placeholder="Confirm Password" type="password"></app-input>
-  </div>
-  <div class="mb-3">
-    <label class="inline-block mb-2">Phone Number</label>
-    <app-input [control]="form.controls.phoneNumber" mask="(000)000-00-00" placeholder="Enter Phone Number"></app-input>
-  </div>
-  <button
-    type="submit"
-    class="block w-full bg-indigo-400 text-white py-1.5 px-3 rounded transition hover:bg-indigo-500 disabled:opacity-50 disabled:bg-indigo-400"
-    [disabled]="!form.valid || inSubmission()"
-  >
-    Submit
-  </button>
+    <div class="mb-3">
+        <label class="inline-block mb-2">Name</label>
+        <app-input [control]="form.controls.name" placeholder="Enter Name"></app-input>
+    </div>
+    <div class="mb-3">
+        <label class="inline-block mb-2">Email</label>
+        <app-input [control]="form.controls.email" placeholder="Enter Email" type="email"></app-input>
+    </div>
+    <div class="mb-3">
+        <label class="inline-block mb-2">Age</label>
+        <app-input [control]="form.controls.age" placeholder="Enter Age" type="number"></app-input>
+    </div>
+    <div class="mb-3">
+        <label class="inline-block mb-2">Password</label>
+        <app-input [control]="form.controls.password" placeholder="Password" type="password"></app-input>
+    </div>
+    <div class="mb-3">
+        <label class="inline-block mb-2">Confirm Password</label>
+        <app-input [control]="form.controls.confirmPassword" placeholder="Confirm Password" type="password"></app-input>
+    </div>
+    <div class="mb-3">
+        <label class="inline-block mb-2">Phone Number</label>
+        <app-input [control]="form.controls.phoneNumber" mask="(000)000-00-00"
+                   placeholder="Enter Phone Number"></app-input>
+    </div>
+    <button
+            type="submit"
+            class="block w-full bg-indigo-400 text-white py-1.5 px-3 rounded transition hover:bg-indigo-500 disabled:opacity-50 disabled:bg-indigo-400"
+            [disabled]="!form.valid || inSubmission()"
+    >
+        Submit
+    </button>
 </form>

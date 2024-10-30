@@ -43,13 +43,17 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles.scss",
+              "video.js/dist/video-js.css",
+              "@videojs/themes/dist/forest/index.css"
             ],
             "scripts": []
           },
           "configurations": {
             "ru": {
-              "localize": ["ru"]
+              "localize": [
+                "ru"
+              ]
             },
             "production": {
               "budgets": [

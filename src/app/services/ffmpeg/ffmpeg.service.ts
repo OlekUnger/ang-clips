@@ -7,7 +7,7 @@ import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
 export class FfmpegService {
     public isReady = signal(false)
     public isRunning = signal(false)
-    #ffmpeg = createFFmpeg({log: true})
+    #ffmpeg = createFFmpeg({log: false})
 
     constructor() {
     }
